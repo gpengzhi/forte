@@ -6,7 +6,6 @@ recommonmark
 mypy_extensions
 sphinxcontrib-spelling
 
-
 pyyaml
 jsonpickle
 sortedcontainers
