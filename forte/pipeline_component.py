@@ -21,6 +21,7 @@ from forte.data.base_pack import PackType
 
 
 class PipelineComponent(Generic[PackType]):
+
     def initialize(self, resource: Resources, configs: HParams):
         r"""The pipeline will call the initialize method at the start of a
         processing. The processor and reader will be initialized with

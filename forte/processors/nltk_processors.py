@@ -20,8 +20,7 @@ from ft.onto.base_ontology import Token, Sentence
 
 
 class NLTKWordTokenizer(PackProcessor):
-    """
-    A wrapper of NLTK word tokenizer.
+    r"""A wrapper of NLTK word tokenizer.
     """
     def __init__(self):
         super().__init__()

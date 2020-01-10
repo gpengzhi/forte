@@ -34,8 +34,7 @@ process_manager = ProcessManager()
 
 
 class BaseProcessor(PipelineComponent[PackType], ABC):
-    """
-    The basic processor class. To be inherited by all kinds of processors
+    r"""The basic processor class. To be inherited by all kinds of processors
     such as trainer, predictor and evaluator.
     """
 
@@ -44,15 +43,14 @@ class BaseProcessor(PipelineComponent[PackType], ABC):
         self.selector = DummySelector()
 
     def initialize(self, resource: Resources, configs: Optional[HParams]):
-        """
-        The pipeline will call the initialize method at the start of a
+        r"""The pipeline will call the initialize method at the start of a
         processing. The processor will be initialized with ``configs``,
         and register global resources into ``resource``. The implementation
         should set up the states of the processor.
 
         Args:
             resource: A global resource register. User can register
-             shareable resources here, for example, the vocabulary.
+                shareable resources here, for example, the vocabulary.
             configs: The configuration passed in to set up this processor.
 
         Returns:
@@ -67,8 +65,7 @@ class BaseProcessor(PipelineComponent[PackType], ABC):
 
     @abstractmethod
     def _process(self, input_pack: PackType):
-        """
-        The main function of the processor should be implemented here. The
+        r"""The main function of the processor should be implemented here. The
         implementation of this function should process the ``input_pack``, and
         conduct operations such as adding entries into the pack, or produce
         some side-effect such as writing data into the disk.
@@ -82,8 +79,8 @@ class BaseProcessor(PipelineComponent[PackType], ABC):
         raise NotImplementedError
 
     def flush(self):
-        """
-        Indicate that there will be no more packs to be passed in.
+        r"""Indicate that there will be no more packs to be passed in.
+
         Returns:
 
         """
@@ -91,8 +88,7 @@ class BaseProcessor(PipelineComponent[PackType], ABC):
 
     @staticmethod
     def default_hparams():
-        """
-        This defines a basic Hparams structure
+        r"""Returns a dictionary of default hyperparameters.
         """
         return {
             'selector': {
