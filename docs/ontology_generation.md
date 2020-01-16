@@ -9,12 +9,14 @@ in JSON format. The JSON ontology is then converted to Python classes
 automatically using the Forte Ontology Generation feature.
 
 This _Ontology Configuration_ tutorial teaches how to:
+
 * Define a simple ontology config for your NLP project using JSON.
 * Define multiple ontology configs and the dependencies between them.
 * Generate the corresponding Python classes automatically and use them in 
 your project.
 
 Overview of Forte concepts used in this tutorial:
+
 * *Entry* - An entry corresponds to one NLP unit in the document, for instance, 
 an annotated sequence or relationship between annotated sequences. `Token`, 
 `Sentence` and `DependencyLink` are some examples of entries. One entry defined 

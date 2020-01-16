@@ -1,6 +1,8 @@
 Welcome to Forte's documentation!
 ******************************************
 
+Forte is a flexible pipeline system designed for text processing.
+
 .. toctree::
    :maxdepth: 1
 
@@ -10,6 +12,10 @@ Welcome to Forte's documentation!
    :maxdepth: 2
 
    examples.md
+
+.. toctree::
+   :maxdepth: 2
+
    ontology_generation.md
 
 API
@@ -19,8 +25,8 @@ API
    :maxdepth: 2
 
    code/data.rst
+   code/models.rst
    code/pipeline.rst
    code/processors.rst
-   code/models.rst
    code/trainers.rst
    code/utils.rst
