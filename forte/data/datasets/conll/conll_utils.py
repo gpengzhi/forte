@@ -16,9 +16,22 @@ Here we define some utility functions for CoNLL evaluation datasets change.
 We can add other datasets conversion function for CoNLL here in the future.
 """
 
+__all__ = [
+    "write_tokens_to_file",
+]
+
 
 def write_tokens_to_file(pred_pack, pred_request, refer_pack, refer_request,
                          output_filename):
+    r"""Write the specified tokens to a file.
+
+    Args:
+        pred_pack：Prediction datapack.
+        pred_request: Prediction request.
+        refer_pack: Reference datapack.
+        refer_request: Reference request.
+        output_filename: output file name.
+    """
     opened_file = open(output_filename, "w+")
     for pred_sentence, tgt_sentence in zip(
             pred_pack.get_data(**pred_request),
