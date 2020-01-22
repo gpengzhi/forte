@@ -68,7 +68,7 @@ class BaseProcessor(PipelineComponent[PackType], ABC):
         some side-effect such as writing data into the disk.
 
         Args:
-            input_pack:
+            input_pack: The input datapack.
         """
         raise NotImplementedError
 
