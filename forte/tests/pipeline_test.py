@@ -13,7 +13,7 @@ from forte.common import Resources
 from forte.data.readers import PackReader, MultiPackReader, OntonotesReader
 from forte.data.data_pack import DataPack
 from forte.data.multi_pack import MultiPack
-from forte.data.ontology import Generic
+from forte.data.ontology.core import Entry
 from forte.data.selector import FirstPackSelector
 from forte.processors.base import PackProcessor, FixedSizeBatchProcessor
 from forte.processors.base.tests.dummy_batch_processor import \
@@ -22,7 +22,7 @@ from forte.pipeline import Pipeline
 from ft.onto.base_ontology import Token, Sentence, RelationLink
 
 
-class NewType(Generic):
+class NewType(Entry):
     """A dummy generic type to check the correctness of pipeline execution."""
     def __init__(self, pack, value):
         super().__init__(pack)
