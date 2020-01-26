@@ -11,14 +11,39 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""
+Utility functions for ontology code generation.
+"""
 import os
+
 from collections import OrderedDict
-from typing import Optional, Any, List
+from importlib import util as import_util
+from pathlib import Path
+from pydoc import locate
+from typing import Any, List, Optional
 
+import json
+import jsonschema
 
-class Config:
-    indent: int = 4
-    line_break: str = os.linesep
+__all__ = [
+    "indent",
+    "indent_line",
+    "indent_code",
+    "empty_lines",
+    "get_user_objects_from_module",
+    "search_in_dirs",
+    "get_top_level_dirs",
+    "split_file_path",
+    "validate_json_schema",
+    "Config",
+    "Item",
+    "Property",
+    "ClassAttributeItem",
+    "BasicItem",
+    "CompositeItem",
+    "DefinitionItem",
+    "FileItem",
+]
 
 
 def indent(level: int) -> str:
@@ -38,6 +63,124 @@ def indent_code(code_lines: List[str], level: int = 0) -> str:
 
 def empty_lines(num: int):
     return ''.join([Config.line_break] * num)
+
+
+def get_user_objects_from_module(module_str: str,
+                                 custom_dirs: Optional[str] = None):
+    r"""Return the object from the module.
+
+    Args:
+        module_str: Module in the form of string, ``package.module`.
+        custom_dirs: Custom directories to search from if ``module_str`` not a
+            part of imported modules.
+
+    Returns:
+        A list of objects present in the module ``module_str``, None is module
+        not found.
+    """
+    module = locate(module_str)
+    if module is not None and hasattr(module, '__all__'):
+        return module.__all__  # type: ignore
+    objects: List[str] = []
+    if custom_dirs is not None:
+        module_file = module_str.replace('.', '/') + '.py'
+        for dir_ in custom_dirs:
+            filepath = os.path.join(dir_, module_file)
+            try:
+                spec = import_util.spec_from_file_location(module_str,
+                                                           filepath)
+                module = import_util.module_from_spec(spec)
+                spec.loader.exec_module(module)  # type: ignore
+                objects = module.__all__  # type: ignore
+            except (FileNotFoundError, AttributeError):
+                continue
+    return objects
+
+
+def search_in_dirs(file, dirs_paths):
+    r"""Search files in the given directory.
+
+    Args:
+        file: File to be searched for.
+        dirs_paths: Directory Paths in which the ``file`` is to be searched.
+
+    Returns:
+        Resolved filename if the ``file`` is found in ``dir_paths``, else
+        `None`.
+    """
+    for _dir in dirs_paths:
+        if not os.path.isabs(file):
+            file = os.path.join(_dir, file)
+        file = str(Path(file).resolve())
+
+        for dir_path in Path(_dir).glob("**/*"):
+            resolved_path = str(dir_path.resolve())
+            if file == resolved_path:
+                return resolved_path
+    return None
+
+
+def get_top_level_dirs(path: Optional[str]):
+    r"""Return the top level directory.
+
+    Args:
+        path: Path for which the directories at `depth==1` are to be returned.
+
+    Returns:
+        Directories at `depth==1` for ``path``.
+    """
+    if path is None or not os.path.exists(path):
+        return []
+    return [item for item in os.listdir(path)
+            if os.path.isdir(os.path.join(path, item))]
+
+
+def split_file_path(path: str):
+    r"""Split the file path.
+
+    Examples:
+        split_file_path('forte/data/ontology/file.py')
+        ['forte', 'data', 'ontology', 'file.py']
+        split_file_path('/home/file.py')
+        ['', 'home', 'file.py']
+
+    Args:
+        path: Path to be split.
+
+    Returns:
+        List containing path components.
+    """
+    path_split = []
+    prev_dir, curr_dir = None, (str(Path(path)), '')
+    while prev_dir != curr_dir:
+        prev_dir = curr_dir
+        if curr_dir[-1].strip():
+            path_split.append(curr_dir[-1])
+        curr_dir = os.path.split(curr_dir[0])
+    path_split += [''] if path.startswith('/') else []
+    return path_split[::-1]
+
+
+def validate_json_schema(input_filepath: str, validation_filepath: str):
+    r"""Validates the input json schema using validation meta-schema provided in
+    ``validation_filepath`` according to the specification in
+    `http://json-schema.org`. If the tested json is not valid, a
+    `jsonschema.exceptions.ValidationError` is thrown.
+
+    Args:
+        input_filepath: File path of the json schema to be validated.
+        validation_filepath: File path of the validation specification.
+    """
+    with open(validation_filepath, 'r') as validation_json_file:
+        validation_schema = json.loads(validation_json_file.read())
+    with open(input_filepath, 'r') as input_json_file:
+        input_schema = json.loads(input_json_file.read())
+    jsonschema.Draft6Validator(validation_schema).validate(input_schema)
+
+
+class Config:
+    indent: int = 4
+    line_break: str = os.linesep
 
 
 class Item:
@@ -65,8 +208,9 @@ class Property(Item):
         self.default = default
 
     def to_getter_setter_code(self, level) -> str:
-        """
-            Returns: getter and setter functions generated by a property.
+        r"""
+        Returns:
+            getter and setter functions generated by a property.
         """
         name = self.name
         lines = [("@property", 0),

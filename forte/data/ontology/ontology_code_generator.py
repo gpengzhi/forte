@@ -33,10 +33,11 @@ from typing import Dict, List, Optional, Tuple, Set, no_type_check
 import typed_ast.ast3 as ast
 import typed_astunparse as ast_unparse
 
-from forte.data.ontology import utils, top
-from forte.data.ontology.code_generation_util import (
+from forte.data.ontology import top
+from forte.data.ontology.ontology_code_generater_utils import (
     BasicItem, CompositeItem, ClassAttributeItem, DefinitionItem, FileItem,
-    Property)
+    Property, get_user_objects_from_module, get_top_level_dirs, search_in_dirs,
+    split_file_path)
 
 
 # TODO: Causing error in sphinx - fix and uncomment. Current version displays
@@ -250,7 +251,7 @@ class OntologyCodeGenerator:
 
         # Adding the imported objects to the allowed types.
         for import_module in self.required_imports:
-            for obj_str in utils.get_user_objects_from_module(import_module):
+            for obj_str in get_user_objects_from_module(import_module):
                 full_obj_str = f"{import_module}.{obj_str}"
                 self.allowed_types_tree[full_obj_str] = set()
                 self.ref_to_full_name[obj_str] = full_obj_str
@@ -265,8 +266,8 @@ class OntologyCodeGenerator:
         # `self.tempdir` to the provided folder.
         if not is_dry_run:
 
-            generated_top_dirs = set(utils.get_top_level_dirs(self.tempdir))
-            for existing_top_dir in utils.get_top_level_dirs(destination_dir):
+            generated_top_dirs = set(get_top_level_dirs(self.tempdir))
+            for existing_top_dir in get_top_level_dirs(destination_dir):
                 if existing_top_dir in generated_top_dirs:
                     warnings.warn(
                         f"DirectoryAlreadyPresent: "
@@ -323,8 +324,7 @@ class OntologyCodeGenerator:
         modules_to_import: List[str] = allowed_packages
 
         for import_file in json_imports:
-            import_json_file = utils.search_in_dirs(import_file,
-                                                    self.json_paths)
+            import_json_file = search_in_dirs(import_file, self.json_paths)
             if import_json_file is None:
                 raise ValueError(f"ImportOntologyNotFound: "
                                  f"Ontology corresponding to {import_file} not "
@@ -409,7 +409,7 @@ class OntologyCodeGenerator:
                 # Create entry sub-directories with .generated file if the
                 # subdirectory is created programmatically
                 # Peak if the folder exists at the destination directory
-                entry_dir_split = utils.split_file_path(entry_pkg_dir)
+                entry_dir_split = split_file_path(entry_pkg_dir)
                 rel_dir_paths = it.accumulate(entry_dir_split, os.path.join)
                 for rel_dir_path in rel_dir_paths:
                     temp_path = os.path.join(self.tempdir, rel_dir_path)
