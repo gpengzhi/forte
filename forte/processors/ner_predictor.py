@@ -284,7 +284,7 @@ class CoNLLNERPredictor(FixedSizeBatchProcessor):
         return words, chars, masks, lengths
 
     @staticmethod
-    def default_hparams():
+    def default_configs():
         """
         This defines a basic Hparams structure
         :return:

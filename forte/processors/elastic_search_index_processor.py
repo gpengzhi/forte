@@ -40,7 +40,7 @@ class ElasticSearchIndexProcessor(IndexProcessor):
         self.indexer = cls(hparams=self.config.indexer.hparams)
 
     @staticmethod
-    def default_hparams() -> Dict[str, Any]:
+    def default_configs() -> Dict[str, Any]:
         r"""Returns a dictionary of default hyperparameters.
 
         .. code-block:: python

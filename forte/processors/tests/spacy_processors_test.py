@@ -2,8 +2,6 @@
 import unittest
 from ddt import ddt, data
 
-from texar.torch import HParams
-
 from forte.pipeline import Pipeline
 from forte.data.readers import StringReader
 from forte.processors.spacy_processors import SpacyProcessor
@@ -16,12 +14,12 @@ class TestSpacyProcessor(unittest.TestCase):
         self.spacy = Pipeline()
         self.spacy.set_reader(StringReader())
 
-        config = HParams({
+        config = {
             "processors": "tokenize",
             "lang": "en_core_web_sm",
             # Language code for the language to build the Pipeline
             "use_gpu": False
-        }, SpacyProcessor.default_hparams())
+        }
         self.spacy.add_processor(SpacyProcessor(), config=config)
         self.spacy.initialize()
 
@@ -55,12 +53,12 @@ class TestSpacyProcessor(unittest.TestCase):
         spacy = Pipeline()
         spacy.set_reader(StringReader())
 
-        config = HParams({
+        config = {
             "processors": value,
             "lang": "en_core_web_sm",
             # Language code for the language to build the Pipeline
             "use_gpu": False
-        }, SpacyProcessor.default_hparams())
+        }
         spacy.add_processor(SpacyProcessor(), config=config)
         spacy.initialize()
 
@@ -110,23 +108,24 @@ class TestSpacyProcessor(unittest.TestCase):
             self.assertListEqual(tokens, [])
 
         if "ner" in value:
-            entities_text = [x.text for x in pack.annotations if isinstance(x, EntityMention)]
+            entities_text = [x.text for x in pack.annotations
+                             if isinstance(x, EntityMention)]
             entities_type = [x.ner_type for x in pack.annotations if
                              isinstance(x, EntityMention)]
 
             self.assertEqual(entities_text, ['Forte', 'NLP', 'NLP'])
-            self.assertEqual(entities_type, ['GPE', 'ORG', 'ORG'])
+            self.assertEqual(entities_type, ['ORG', 'ORG', 'ORG'])
 
     def test_neg_spacy_processor(self):
         spacy = Pipeline()
         spacy.set_reader(StringReader())
 
-        config = HParams({
+        config = {
             "processors": 'ner',
             "lang": "xx_ent_wiki_sm",
             # Language code for the language to build the Pipeline
             "use_gpu": False
-        }, SpacyProcessor.default_hparams())
+        }
         spacy.add_processor(SpacyProcessor(), config=config)
         spacy.initialize()
 

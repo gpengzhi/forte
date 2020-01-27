@@ -15,7 +15,7 @@
 import logging
 import itertools
 from abc import abstractmethod
-from typing import List, Dict, Iterator, Generic, Optional
+from typing import Any, List, Dict, Iterator, Generic, Optional, Union
 
 import yaml
 from texar.torch import HParams
@@ -175,11 +175,16 @@ class BasePipeline(Generic[PackType]):
         return self._configs
 
     def add_processor(self, processor: BaseProcessor,
-                      config: Optional[HParams] = None,
+                      config: Optional[Union[HParams, Dict[str, Any]]] = None,
                       selector: Optional[Selector] = None):
         self._processors_index[processor.component_name] = len(self.processors)
 
         self._processors.append(processor)
+
+        if config is None:
+            config = processor.default_configs()
+        config = HParams(config, processor.default_configs())
+
         self.processor_configs.append(config)
 
         if selector is None:

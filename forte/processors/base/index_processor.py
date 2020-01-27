@@ -42,7 +42,7 @@ class IndexProcessor(BaseProcessor[DataPack], ABC):
         self.config = configs
 
     @staticmethod
-    def default_hparams() -> Dict[str, Any]:
+    def default_configs() -> Dict[str, Any]:
         return {
             "batch_size": 128
         }
