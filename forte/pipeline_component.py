@@ -21,8 +21,13 @@ from texar.torch import HParams
 from forte.common.resources import Resources
 from forte.data.base_pack import PackType
 
+__all__ = [
+    "PipelineComponent",
+]
+
 
 class PipelineComponent(Generic[PackType]):
+
     def initialize(self, resource: Resources, configs: HParams):
         r"""The pipeline will call the initialize method at the start of a
         processing. The processor and reader will be initialized with
@@ -45,6 +50,6 @@ class PipelineComponent(Generic[PackType]):
         The component can also add objects to the resources.
 
         Args:
-            resource (Resources): A global resource registry
+            resource (Resources): A global resource registry.
         """
         pass
