@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Base reader type to be inherited by all readers.
+Base reader class to be inherited by all readers.
 """
 import logging
 import os
+
 from abc import abstractmethod, ABC
 from pathlib import Path
-from typing import Iterator, Optional, Any
+from typing import Any, Iterator, Optional
 
 import jsonpickle
 
@@ -27,9 +28,9 @@ from forte.common.types import ReplaceOperationsType
 from forte.data.base_pack import PackType
 from forte.data.data_pack import DataPack
 from forte.data.multi_pack import MultiPack
+from forte.utils.utils import get_full_module_name
 from forte.pipeline_component import PipelineComponent
 from forte.process_manager import ProcessManager
-from forte.utils import get_full_module_name
 
 __all__ = [
     "BaseReader",
@@ -43,33 +44,30 @@ process_manager = ProcessManager()
 
 
 class BaseReader(PipelineComponent[PackType], ABC):
-    """
-        The basic data reader class.
-        To be inherited by all data readers.
+    r"""The basic data reader class. To be inherited by all data readers.
+
+    Args:
+        from_cache (bool, optional): Decide whether to read from cache
+            if cache file exists. By default (``False``), the reader will
+            only read from the original file and use the cache file path
+            for caching, it will not read from the cache_directory.
+            If ``True``, the reader will try to read a datapack from the
+            caching file.
+        cache_directory (str, optional): The base directory to place the
+            path of the caching files. Each collection is contained in one
+            cached file, under this directory. The cached location for each
+            collection is computed by :meth:`_cache_key_function`. Note:
+            A collection is the data returned by :meth:`_collect`.
+        append_to_cache (bool, optional): Decide whether to append write
+            if cache file already exists.  By default (``False``), we
+            will overwrite the existing caching file. If ``True``, we will
+            cache the datapack append to end of the caching file.
     """
 
     def __init__(self,
                  from_cache: bool = False,
                  cache_directory: Optional[str] = None,
                  append_to_cache: bool = False):
-        """
-        Args:
-            from_cache (bool, optional): Decide whether to read from cache
-                if cache file exists. By default (``False``), the reader will
-                only read from the original file and use the cache file path
-                for caching, it will not read from the cache_directory.
-                If ``True``, the reader will try to read a datapack from the
-                caching file.
-            cache_directory (str, optional): The base directory to place the
-                path of the caching files. Each collection is contained in one
-                cached file, under this directory. The cached location for each
-                collection is computed by :meth:`_cache_key_function`. Note:
-                A collection is the data returned by :meth:`_collect`.
-            append_to_cache (bool, optional): Decide whether to append write
-                if cache file already exists.  By default (``False``), we
-                will overwrite the existing caching file. If ``True``, we will
-                cache the datapack append to end of the caching file.
-        """
         self.from_cache = from_cache
         self._cache_directory = cache_directory
         self.component_name = get_full_module_name(self)
@@ -77,6 +75,10 @@ class BaseReader(PipelineComponent[PackType], ABC):
 
     @staticmethod
     def default_configs():
+        r"""Returns a `dict` of configurations of the reader with default
+        values. Used to replace the missing values of input `configs` during
+        pipeline construction.
+        """
         return {}
 
     @property
@@ -89,103 +91,88 @@ class BaseReader(PipelineComponent[PackType], ABC):
     # TODO: This should not be in the reader class.
     @staticmethod
     def serialize_instance(instance: PackType) -> str:
-        """
-        Serialize a pack to a string.
+        r"""Serialize a pack to a string.
         """
         return instance.serialize()
 
     @staticmethod
     def deserialize_instance(string: str) -> PackType:
-        """
-        Deserialize an pack from a string.
+        r"""Deserialize an pack from a string.
         """
         return jsonpickle.decode(string)
 
     @abstractmethod
     def _collect(self, *args: Any, **kwargs: Any) -> Iterator[Any]:
-        """
-        Gives an iterator of data objects
-        each individual object should contain sufficient information
-        needed to construct or locate a data pack in cache.
-        For example: `data_source` can be a kwarg which is the path to a file
-                     that a reader can take to read and parse a file.
+        r"""Gives an iterator of data objects. Each individual object should
+        contain sufficient information needed to construct or locate a data
+        pack in cache.
+
+        For example: ``data_source`` can be a kwarg which is the path to a file
+        that a reader can take to read and parse a file.
 
         Args:
             args: Specify the data source.
             kwargs: Specify the data source.
 
         Returns: Iterator of collections that are sufficient to create one pack.
-
         """
         raise NotImplementedError
 
     def parse_pack(self, collection: Any) -> Iterator[PackType]:
-        """
-        Calls the _parse_pack method to create packs from the collection.
-        This internally setup the component meta data. Users should implement
-        the :meth:`_parse_pack` method.
+        r"""Calls the :meth:`_parse_pack` method to create packs from the
+        collection. This internally setup the component meta data. Users should
+        implement the :meth:`_parse_pack` method.
 
         Args:
-            collection:
+            collection: Object that can be parsed into a Pack.
 
-        Returns:
-
+        Returns: Iterator[PackType]: Iterator of Packs.
         """
         process_manager.set_current_component(self.component_name)
         yield from self._parse_pack(collection)
 
     @abstractmethod
     def _parse_pack(self, collection: Any) -> Iterator[PackType]:
-        """
-        Gives an iterator of Packs parsed from a collection. Readers should
+        r"""Gives an iterator of Packs parsed from a collection. Readers should
         implement this class to populate the class input.
 
         Args:
-            collection: Object that can be parsed into a Pack
+            collection: Object that can be parsed into a Pack.
 
-        Returns: Iterator[PackType]: Iterator of Packs
-
+        Returns: Iterator[PackType]: Iterator of Packs.
         """
         raise NotImplementedError
 
     @abstractmethod
     def _cache_key_function(self, collection: Any) -> str:
-        """
-        Computes the cache key based on the type of data.
+        r"""Computes the cache key based on the type of data.
 
         Args:
-            collection: Any object that provides information
-         to identify the name and location of the cache file
-
-        Returns:
+            collection: Any object that provides information to identify
+                the name and location of the cache file
         """
         raise NotImplementedError
 
     # pylint: disable=unused-argument
     def text_replace_operation(self, text: str) -> ReplaceOperationsType:
-        """
-        Given the possibly noisy text, compute and return the
-        replacement operations in the form of a list of (span, str)
-        pairs, where the content in the span will be replaced by the
-        corresponding str.
+        r"""Given the possibly noisy text, compute and return the replacement
+        operations in the form of a list of (span, str) pairs, where the
+        content in the span will be replaced by the corresponding str.
 
         Args:
             text: The original data text to be cleaned.
 
-        Returns: List[Tuple[Tuple[int, int], str]]: the replacement operations
-
+        Returns: List[Tuple[Tuple[int, int], str]]: the replacement operations.
         """
         return []
 
     def _get_cache_location(self, collection: Any) -> Path:
-        """
-        Gets the path to the cache file for a collection
+        r"""Gets the path to the cache file for a collection
 
         Args:
-            collection: information to compute cache key
+            collection: Information to compute cache key.
 
-        Returns: Path: file path to the cache file for a Pack
-
+        Returns: File path to the cache file for a Pack.
         """
         file_path = self._cache_key_function(collection)
         return Path(os.path.join(str(self._cache_directory), file_path))
@@ -214,19 +201,16 @@ class BaseReader(PipelineComponent[PackType], ABC):
                     yield pack
 
     def iter(self, *args, **kwargs) -> Iterator[PackType]:
-        """
-         An iterator over the entire dataset, giving all Packs processed
-         as list or Iterator depending on `lazy`, giving all the Packs read
-         from the data source(s). If not reading from cache,
-         should call collect()
+        r"""An iterator over the entire dataset, giving all Packs processed
+        as list or Iterator depending on `lazy`, giving all the Packs read
+        from the data source(s). If not reading from cache,
+        should call collect().
 
         Args:
             args: One or more input data sources, for example, most
-        DataPack readers accept `data_source` as file/folder path
+                :class:`DataPack` readers accept `data_source` as
+                file/folder path.
             kwargs: Iterator of DataPacks.
-
-        Returns:
-
         """
         yield from self._lazy_iter(*args, **kwargs)
 
@@ -234,11 +218,10 @@ class BaseReader(PipelineComponent[PackType], ABC):
                    collection: Any,
                    pack: PackType,
                    append: bool):
-        """
-        Specify the path to the cache directory.
+        r"""Specify the path to the cache directory.
 
         After you call this method, the dataset reader will use it's
-        cache_directory to store a cache of :class:`BasePack` read
+        ``cache_directory`` to store a cache of :class:`BasePack` read
         from every document passed to :func:`read`, serialized as one
         string-formatted :class:`BasePack`. If the cache file for a given
         ``file_path`` exists, we read the :class:`BasePack` from the cache
@@ -248,14 +231,11 @@ class BaseReader(PipelineComponent[PackType], ABC):
 
         Args:
             collection: The collection is a piece of data from the
-            _collect function, to be read to produce DataPack(s).
-            During caching, a cache key is computed based on the data in this
-            collection.
+                ``_collect`` function, to be read to produce DataPack(s).
+                During caching, a cache key is computed based on the data in
+                this collection.
             pack: The data pack to be cached.
             append: Whether to allow appending to the cache.
-
-        Returns:
-
         """
         if not self._cache_directory:
             raise ValueError(f"Can not cache without a cache_directory!")
@@ -276,15 +256,13 @@ class BaseReader(PipelineComponent[PackType], ABC):
                 cache.write(self.serialize_instance(pack) + "\n")
 
     def read_from_cache(self, cache_filename: Path) -> Iterator[PackType]:
-        """
-        Reads one or more Packs from a cache_filename,
-        and yields Pack(s) from the cache file.
+        r"""Reads one or more Packs from a cache_filename, and yields Pack(s)
+        from the cache file.
 
         Args:
-            cache_filename: Path to the cache file
+            cache_filename: Path to the cache file.
 
         Returns: List of cached data packs.
-
         """
         logger.info("reading from cache file %s", cache_filename)
         with cache_filename.open("r") as cache_file:
@@ -301,8 +279,7 @@ class BaseReader(PipelineComponent[PackType], ABC):
 
 
 class PackReader(BaseReader[DataPack], ABC):
-    """
-        A Pack Reader reads data into DataPacks.
+    r"""A Pack Reader reads data into DataPacks.
     """
 
     @property
@@ -310,25 +287,20 @@ class PackReader(BaseReader[DataPack], ABC):
         return DataPack
 
     def set_text(self, pack: DataPack, text: str):
-        """
-        Assign the text value to the DataPack. This function will pass the
-        text_replace_operation to the DataPack to conduct the pre-processing
-        step.
+        r"""Assign the text value to the :class:`DataPack`. This function will
+        pass the ``text_replace_operation`` to the :class:`DataPack` to conduct
+        the pre-processing step.
 
         Args:
             pack: The datapack to assign value for.
-            text: The original text to be recorded in this dataset
-
-        Returns:
-
+            text: The original text to be recorded in this dataset.
         """
         pack.set_text(text, replace_func=self.text_replace_operation)
 
 
 class MultiPackReader(BaseReader[MultiPack], ABC):
-    """
-    The basic MultiPack data reader class.
-    To be inherited by all data readers which return MultiPack.
+    r"""The basic :class:`MultiPack` data reader class.
+    To be inherited by all data readers which return :class:`MultiPack`.
     """
 
     @property
