@@ -50,7 +50,7 @@ class BaseReader(PipelineComponent[PackType], ABC):
         from_cache (bool, optional): Decide whether to read from cache
             if cache file exists. By default (``False``), the reader will
             only read from the original file and use the cache file path
-            for caching, it will not read from the cache_directory.
+            for caching, it will not read from the ``cache_directory``.
             If ``True``, the reader will try to read a datapack from the
             caching file.
         cache_directory (str, optional): The base directory to place the
@@ -97,7 +97,7 @@ class BaseReader(PipelineComponent[PackType], ABC):
 
     @staticmethod
     def deserialize_instance(string: str) -> PackType:
-        r"""Deserialize an pack from a string.
+        r"""Deserialize a pack from a string.
         """
         return jsonpickle.decode(string)
 
@@ -114,7 +114,8 @@ class BaseReader(PipelineComponent[PackType], ABC):
             args: Specify the data source.
             kwargs: Specify the data source.
 
-        Returns: Iterator of collections that are sufficient to create one pack.
+        Returns:
+            Iterator of collections that are sufficient to create one pack.
         """
         raise NotImplementedError
 
@@ -126,7 +127,8 @@ class BaseReader(PipelineComponent[PackType], ABC):
         Args:
             collection: Object that can be parsed into a Pack.
 
-        Returns: Iterator[PackType]: Iterator of Packs.
+        Returns:
+            Iterator[PackType]: Iterator of Packs.
         """
         process_manager.set_current_component(self.component_name)
         yield from self._parse_pack(collection)
@@ -139,7 +141,8 @@ class BaseReader(PipelineComponent[PackType], ABC):
         Args:
             collection: Object that can be parsed into a Pack.
 
-        Returns: Iterator[PackType]: Iterator of Packs.
+        Returns:
+            Iterator[PackType]: Iterator of Packs.
         """
         raise NotImplementedError
 
@@ -149,7 +152,7 @@ class BaseReader(PipelineComponent[PackType], ABC):
 
         Args:
             collection: Any object that provides information to identify
-                the name and location of the cache file
+                the name and location of the cache file.
         """
         raise NotImplementedError
 
@@ -162,17 +165,19 @@ class BaseReader(PipelineComponent[PackType], ABC):
         Args:
             text: The original data text to be cleaned.
 
-        Returns: List[Tuple[Tuple[int, int], str]]: the replacement operations.
+        Returns:
+            List[Tuple[Tuple[int, int], str]]: the replacement operations.
         """
         return []
 
     def _get_cache_location(self, collection: Any) -> Path:
-        r"""Gets the path to the cache file for a collection
+        r"""Gets the path to the cache file for a collection.
 
         Args:
             collection: Information to compute cache key.
 
-        Returns: File path to the cache file for a Pack.
+        Returns:
+            File path to the cache file for a Pack.
         """
         file_path = self._cache_key_function(collection)
         return Path(os.path.join(str(self._cache_directory), file_path))
@@ -262,7 +267,8 @@ class BaseReader(PipelineComponent[PackType], ABC):
         Args:
             cache_filename: Path to the cache file.
 
-        Returns: List of cached data packs.
+        Returns:
+            List of cached data packs.
         """
         logger.info("reading from cache file %s", cache_filename)
         with cache_filename.open("r") as cache_file:

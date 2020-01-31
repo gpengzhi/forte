@@ -15,7 +15,8 @@
 The reader that reads plain text data into Datapacks.
 """
 import os
-from typing import Iterator, Any
+
+from typing import Any, Iterator
 
 from forte.data.data_pack import DataPack
 from forte.data.data_utils_io import dataset_path_iterator
@@ -28,18 +29,18 @@ __all__ = [
 
 
 class PlainTextReader(PackReader):
-    """
-    :class:`PlainTextReader` is designed to read in plain text dataset.
+    r""":class:`PlainTextReader` is designed to read in plain text dataset.
     """
 
     def _collect(self, text_directory) -> Iterator[Any]:  # type: ignore
-        """
-        Should be called with param `text_directory` which is a path to a folder
-        containing txt files.
+        r"""Should be called with param `text_directory` which is a path to a
+        folder containing txt files.
+
         Args:
             text_directory: text directory containing the files.
 
-        Returns: Iterator over paths to .txt files
+        Returns:
+            Iterator over paths to ``.txt`` files.
 
         """
         return dataset_path_iterator(text_directory, ".txt")
