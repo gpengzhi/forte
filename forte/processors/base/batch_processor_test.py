@@ -12,26 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-This file contains examples of batch processor implementations, which basically
-create entries arbitrarily. The processors here are useful as placeholders and
-test cases.
+Unit tests for BatchProcessor.
 """
+import unittest
+
 from typing import Dict, Optional, Type
 
 import numpy as np
+
+from ddt import ddt, data
 from texar.torch import HParams
 
-from forte.common import Resources
-from forte.data.data_pack import DataPack
+from forte.common.resources import Resources
 from forte.common.types import DataRequest
+from forte.data.readers import OntonotesReader, StringReader, PlainTextReader
 from forte.data.batchers import ProcessingBatcher, FixedSizeDataPackBatcher
+from forte.data.data_pack import DataPack
 from forte.processors.base import BatchProcessor, FixedSizeBatchProcessor
+from forte.processors.nltk_processors import NLTKSentenceSegmenter
+from forte.pipeline import Pipeline
 from ft.onto.base_ontology import Token, Sentence, EntityMention, RelationLink
-
-__all__ = [
-    "DummyRelationExtractor",
-    "DummmyFixedSizeBatchProcessor",
-]
 
 
 class DummyRelationExtractor(BatchProcessor):
@@ -147,3 +147,75 @@ class DummmyFixedSizeBatchProcessor(FixedSizeBatchProcessor):
         return {
             "batcher": {"batch_size": 10}
         }
+
+
+class DummyProcessorTest(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.nlp = Pipeline()
+        self.nlp.set_reader(OntonotesReader())
+        dummy = DummyRelationExtractor()
+        config = {"batcher": {"batch_size": 5}}
+        self.nlp.add_processor(dummy, config=config)
+        self.nlp.initialize()
+
+        self.data_path = "data_samples/ontonotes/00/"
+
+    def test_processor(self):
+        pack = self.nlp.process(self.data_path)
+        relations = list(pack.get_entries(RelationLink))
+        assert (len(relations) > 0)
+        for relation in relations:
+            self.assertEqual(relation.get_field("rel_type"), "dummy_relation")
+
+
+@ddt
+class DummyFixedSizeBatchProcessorTest(unittest.TestCase):
+
+    @data(1, 2, 3)
+    def test_one_batch_processor(self, batch_size):
+        nlp = Pipeline()
+        nlp.set_reader(StringReader())
+        dummy = DummmyFixedSizeBatchProcessor()
+        config = {"batcher": {"batch_size": batch_size}}
+        nlp.add_processor(NLTKSentenceSegmenter())
+        nlp.add_processor(dummy, config=config)
+        nlp.initialize()
+        sentences = ["This tool is called Forte. The goal of this project to "
+                     "help you build NLP pipelines. NLP has never been made "
+                     "this easy before."]
+        pack = nlp.process(sentences)
+        sent_len = len(list(pack.get(Sentence)))
+        self.assertEqual(
+            dummy.counter, (sent_len // batch_size +
+                            (sent_len % batch_size > 0)))
+
+    @data(1, 2, 3)
+    def test_two_batch_processors(self, batch_size):
+        nlp = Pipeline()
+        nlp.set_reader(PlainTextReader())
+        dummy1 = DummmyFixedSizeBatchProcessor()
+        dummy2 = DummmyFixedSizeBatchProcessor()
+        config = {"batcher": {"batch_size": batch_size}}
+        nlp.add_processor(NLTKSentenceSegmenter())
+
+        nlp.add_processor(dummy1, config=config)
+        config = {"batcher": {"batch_size": 2 * batch_size}}
+        nlp.add_processor(dummy2, config=config)
+
+        nlp.initialize()
+        data_path = "data_samples/random_texts"
+        pack = nlp.process(data_path)
+        sent_len = len(list(pack.get(Sentence)))
+
+        self.assertEqual(
+            dummy1.counter, (sent_len // batch_size +
+                            (sent_len % batch_size > 0)))
+
+        self.assertEqual(
+            dummy2.counter, (sent_len // (2 * batch_size) +
+                             (sent_len % (2 * batch_size) > 0)))
+
+
+if __name__ == '__main__':
+    unittest.main()

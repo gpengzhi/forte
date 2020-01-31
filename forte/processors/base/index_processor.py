@@ -15,11 +15,12 @@
 Index processor
 """
 from abc import ABC
-from typing import Dict, Any, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 from texar.torch import HParams
-from forte.common import Resources
-from forte.data import DataPack
+
+from forte.common.resources import Resources
+from forte.data.data_pack import DataPack
 from forte.processors.base.base_processor import BaseProcessor
 
 __all__ = [
@@ -28,10 +29,9 @@ __all__ = [
 
 
 class IndexProcessor(BaseProcessor[DataPack], ABC):
-    r"""A  base processor for indexing documents into traditional indexers like
+    r"""A base processor for indexing documents into traditional indexers like
     Elasticsearch and/or dense vector indexers like Faiss. Subclasses need to
     implement :meth:`IndexProcessor::_bulk_process`.
-
     """
 
     # pylint: disable=useless-super-delegation
@@ -45,7 +45,7 @@ class IndexProcessor(BaseProcessor[DataPack], ABC):
         self.config = configs
 
     @staticmethod
-    def default_hparams() -> Dict[str, Any]:
+    def default_configs() -> Dict[str, Any]:
         return {
             "batch_size": 128
         }

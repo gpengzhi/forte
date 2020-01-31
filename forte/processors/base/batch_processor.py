@@ -15,18 +15,20 @@
 The processors that process data in batch.
 """
 import itertools
+
 from abc import abstractmethod, ABC
 from typing import Dict, Optional, Type
 
 from texar.torch import HParams
 
-from forte.common import Resources
+from forte.common.resources import Resources
 from forte.common.types import DataRequest
-from forte.data.base_pack import PackType
-from forte.data import DataPack, MultiPack
-from forte.data import slice_batch
-from forte.data.batchers import ProcessingBatcher, FixedSizeDataPackBatcher
 from forte.data.ontology.top import Annotation
+from forte.data.base_pack import PackType
+from forte.data.batchers import ProcessingBatcher, FixedSizeDataPackBatcher
+from forte.data.data_pack import DataPack
+from forte.data.data_utils_io import slice_batch
+from forte.data.multi_pack import MultiPack
 from forte.processors.base.base_processor import BaseProcessor
 from forte.process_manager import ProcessManager, ProcessJobStatus
 
@@ -59,7 +61,7 @@ class BaseBatchProcessor(BaseProcessor[PackType], ABC):
         self.batcher: ProcessingBatcher = self.define_batcher()
         self.use_coverage_index = False
 
-    def initialize(self, resource: Resources, configs: Optional[HParams]):
+    def initialize(self, resource: Resources, configs: HParams):
         super().initialize(resource, configs)
         # Initialize the batcher.
         self.batcher.initialize(configs)
