@@ -14,8 +14,6 @@
 
 import yaml
 
-from texar.torch import HParams
-
 from forte.pipeline import Pipeline
 from forte.data.readers.conll03_reader import CoNLL03Reader
 from forte.processors.ner_predictor import CoNLLNERPredictor
@@ -24,10 +22,10 @@ from ft.onto.base_ontology import Token, Sentence, EntityMention
 config_data = yaml.safe_load(open("config_data.yml", "r"))
 config_model = yaml.safe_load(open("config_model.yml", "r"))
 
-config = HParams({}, default_hparams=None)
-config.add_hparam('config_data', config_data)
-config.add_hparam('config_model', config_model)
-
+config = {
+    'config_data': config_data,
+    'config_model': config_model
+}
 
 pl = Pipeline()
 pl.set_reader(CoNLL03Reader())

@@ -113,6 +113,9 @@ class Resources:
         if isinstance(keys, List):
             for key in keys:
                 with open(Path(path, f"{key}.pkl"), "rb") as f:
+
+                    print(key)
+
                     self.resources[key] = pickle.load(f)
         else:
             for key, deserializer in keys.items():

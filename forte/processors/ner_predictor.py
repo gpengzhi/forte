@@ -291,6 +291,8 @@ class CoNLLNERPredictor(FixedSizeBatchProcessor):
         """
         hparams_dict = {
             'storage_path': None,
+            'config_data': None,
+            'config_model': None
         }
         return hparams_dict
 
