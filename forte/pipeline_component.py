@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Pipeline component module
+Pipeline component module.
 """
 from typing import Generic
 
@@ -23,6 +23,7 @@ from forte.data.base_pack import PackType
 
 
 class PipelineComponent(Generic[PackType]):
+
     def initialize(self, resource: Resources, configs: HParams):
         r"""The pipeline will call the initialize method at the start of a
         processing. The processor and reader will be initialized with
@@ -45,6 +46,6 @@ class PipelineComponent(Generic[PackType]):
         The component can also add objects to the resources.
 
         Args:
-            resource (Resources): A global resource registry
+            resource (Resources): A global resource registry.
         """
         pass
