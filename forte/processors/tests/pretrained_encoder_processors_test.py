@@ -19,7 +19,7 @@ import unittest
 
 from forte.pipeline import Pipeline
 from forte.data.readers import StringReader
-from forte.processors.nltk_processors import NLTKSentenceSegmenter, \
+from forte.processors.third_party.nltk_processors import NLTKSentenceSegmenter, \
     NLTKWordTokenizer, NLTKPOSTagger, NLTKChunker
 from forte.processors.pretrained_encoder_processors import PretrainedEncoder
 from forte.utils.test import pretrained_test

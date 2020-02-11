@@ -19,7 +19,7 @@ from texar.torch import HParams
 
 from forte.data.readers import StringReader
 from forte.pipeline import Pipeline
-from forte.processors.stanfordnlp_processor import StandfordNLPProcessor
+from forte.processors.third_party.stanfordnlp_processor import StandfordNLPProcessor
 
 from ft.onto.base_ontology import Token, Sentence, Dependency
 

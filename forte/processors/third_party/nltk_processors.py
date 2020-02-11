@@ -11,6 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""
+NLTK processors.
+"""
 
 from nltk import word_tokenize, pos_tag, sent_tokenize, ne_chunk
 from nltk.chunk import RegexpParser
@@ -20,7 +23,7 @@ from texar.torch import HParams
 
 from forte.common.resources import Resources
 from forte.data.data_pack import DataPack
-from forte.processors.base import PackProcessor
+from forte.processors.base.pack_processor import PackProcessor
 from ft.onto.base_ontology import EntityMention, Token, Sentence, Phrase
 
 

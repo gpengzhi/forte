@@ -11,16 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""
+AllenNLP processors.
+"""
 
 import logging
+
 from allennlp.predictors import Predictor
 from texar.torch import HParams
 
-from ft.onto.base_ontology import Token, Sentence, Dependency
+from forte.common.exception import ProcessorConfigError
 from forte.common.resources import Resources
-from forte.data import DataPack
-from forte.processors.base import PackProcessor
-from forte.common import ProcessorConfigError
+from forte.data.data_pack import DataPack
+from forte.processors.base.pack_processor import PackProcessor
+from ft.onto.base_ontology import Token, Sentence, Dependency
+
 
 logger = logging.getLogger(__name__)
 

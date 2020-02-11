@@ -19,7 +19,7 @@ import unittest
 
 from forte.pipeline import Pipeline
 from forte.data.readers import StringReader
-from forte.processors.stanfordnlp_processor import StandfordNLPProcessor
+from forte.processors.third_party.stanfordnlp_processor import StandfordNLPProcessor
 
 
 class TestStanfordNLPProcessor(unittest.TestCase):

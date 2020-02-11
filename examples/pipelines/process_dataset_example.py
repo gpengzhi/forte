@@ -21,7 +21,7 @@ from forte.pipeline import Pipeline
 from forte.data.readers import PlainTextReader
 from forte.processors import (
     CoNLLNERPredictor, SRLPredictor)
-from forte.processors.nltk_processors import NLTKWordTokenizer, \
+from forte.processors.third_party.nltk_processors import NLTKWordTokenizer, \
     NLTKPOSTagger, NLTKSentenceSegmenter
 
 from ft.onto.base_ontology import Token, Sentence, EntityMention, \

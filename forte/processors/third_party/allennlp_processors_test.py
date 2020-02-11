@@ -1,11 +1,26 @@
-"""This module tests LowerCaser processor."""
+# Copyright 2019 The Forte Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""
+Unit tests for AllenNLP processors.
+"""
 import unittest
 from ddt import ddt, data, unpack
 
 from forte.pipeline import Pipeline
 from forte.data.readers import StringReader
-from forte.processors.allennlp_processors import AllenNLPProcessor
-from forte.processors.spacy_processors import SpacyProcessor
+from forte.processors.third_party.allennlp_processors import AllenNLPProcessor
+from forte.processors.third_party.spacy_processors import SpacyProcessor
 from ft.onto.base_ontology import Sentence, Token, Dependency
 from forte.common import ProcessorConfigError
 
@@ -217,3 +232,7 @@ class TestAllenNLPProcessor(unittest.TestCase):
                 tokens[self.dep_heads[output_format][sent_idx][j] - 1])
             self.assertEqual(dep.rel_type,
                              self.deps[output_format][sent_idx][j])
+
+
+if __name__ == "__main__":
+    unittest.main()

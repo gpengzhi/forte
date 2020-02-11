@@ -17,11 +17,9 @@ Unit tests for dummy processor.
 import unittest
 from ddt import ddt, data
 
-from texar.torch import HParams
-
 from forte.data.readers import OntonotesReader, StringReader, PlainTextReader
 from forte.pipeline import Pipeline
-from forte.processors.nltk_processors import NLTKSentenceSegmenter
+from forte.processors.third_party.nltk_processors import NLTKSentenceSegmenter
 from forte.processors.base.tests.dummy_batch_processor import \
     DummyRelationExtractor, DummmyFixedSizeBatchProcessor
 from ft.onto.base_ontology import RelationLink, Sentence

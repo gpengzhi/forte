@@ -16,7 +16,7 @@ from texar.torch import HParams
 
 from forte.pipeline import Pipeline
 from forte.data.readers import OntonotesReader
-from forte.processors.nltk_processors import NLTKWordTokenizer, \
+from forte.processors.third_party.nltk_processors import NLTKWordTokenizer, \
     NLTKPOSTagger, NLTKSentenceSegmenter
 from forte.processors.writers import DocIdJsonPackWriter
 

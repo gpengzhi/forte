@@ -19,8 +19,9 @@ import unittest
 
 from forte.pipeline import Pipeline
 from forte.data.readers import StringReader
-from forte.processors.nltk_processors import NLTKSentenceSegmenter, \
-    NLTKWordTokenizer, NLTKPOSTagger, NLTKLemmatizer, NLTKChunker, NLTKNER
+from forte.processors.third_party.nltk_processors import (
+    NLTKSentenceSegmenter, NLTKWordTokenizer, NLTKPOSTagger, NLTKLemmatizer,
+    NLTKChunker, NLTKNER)
 from ft.onto.base_ontology import Token, Sentence, Phrase, EntityMention
 
 
