@@ -32,6 +32,7 @@ install:
   - pip install pylint==2.3.1 flake8==3.7.7
   - pip install mypy>=0.730
   - pip install pytest==4.3.1
+  - export TEST_HOME_VAR=`pwd`
   # Install code coverage tools.
   - pip install coverage codecov
 
